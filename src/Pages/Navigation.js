@@ -12,19 +12,20 @@ import { Container } from '@mui/system';
 import { Form, Formik } from 'formik';
 import DeleteIcon from '@mui/icons-material/Delete';
 import { useEffect, useState } from 'react';
-import { getData } from '../Helpers/FirestoreHelper';
+import { updateData } from '../Helpers/FirestoreHelper';
 
-const Navigation = () => {
-  const [nData, setNData] = useState(null);
+const Navigation = ({ vData, handleGetData }) => {
+  const [nData, setNData] = useState(vData && vData[0].navigation);
+  const uid = vData && vData[0].uid;
 
-  useEffect(() => {
-    const data = async () => {
-      let res = await getData('vdev');
-      res = res[0].navgation;
-      setNData(res);
-    };
-    data();
-  }, []);
+  const handleNavDelete = async (index) => {
+    const data = nData.filter((item, i) => i != index);
+    setNData(data);
+    updateData('vdev', uid, {
+      navigation: data,
+    });
+    handleGetData();
+  };
 
   return (
     nData && (
@@ -33,30 +34,52 @@ const Navigation = () => {
           <Typography mb={3} mt={2.5} variant='h5'>
             Navigation Bar
           </Typography>
-          <Formik>
-            <Form>
-              <TextField
-                sx={{ mt: 3 }}
-                required
-                id='outlined-required'
-                label='Nav Title'
-                fullWidth
-              />
-              <TextField
-                sx={{ mt: 3 }}
-                required
-                id='outlined-required'
-                label='Nav Link'
-                fullWidth
-              />
-              <Button
-                type='submit'
-                variant='contained'
-                fullWidth
-                style={{ marginTop: '3rem' }}>
-                Submit
-              </Button>
-            </Form>
+          <Formik
+            initialValues={{
+              navTitle: '',
+              navLink: '',
+            }}
+            onSubmit={async (res) => {
+              const post = [...nData, res];
+              setNData((prevData) => [...prevData, res]);
+              updateData('vdev', uid, {
+                navigation: post,
+              });
+              document.querySelector('#nav').reset();
+              handleGetData();
+            }}>
+            {({ isSubmitting, handleChange, values }) => (
+              <Form id='nav'>
+                <TextField
+                  sx={{ mt: 3 }}
+                  required
+                  name='navTitle'
+                  id='outlined-required'
+                  label='Nav Title'
+                  value={values.navTitle}
+                  onChange={handleChange}
+                  fullWidth
+                />
+                <TextField
+                  sx={{ mt: 3 }}
+                  required
+                  id='outlined-required'
+                  name='navLink'
+                  value={values.navLink}
+                  onChange={handleChange}
+                  label='Nav Link'
+                  fullWidth
+                />
+                <Button
+                  disabled={isSubmitting}
+                  type='submit'
+                  variant='contained'
+                  fullWidth
+                  style={{ marginTop: '3rem' }}>
+                  Submit
+                </Button>
+              </Form>
+            )}
           </Formik>
         </Container>
         <Container sx={{ marginBottom: '3rem' }}>
@@ -75,8 +98,10 @@ const Navigation = () => {
                 alignItems='flex-start'
                 secondaryAction={
                   <>
-                    <Switch checked={item.active} />
-                    <IconButton edge='end' aria-label='delete'>
+                    <IconButton
+                      edge='end'
+                      aria-label='delete'
+                      onClick={() => handleNavDelete(index)}>
                       <DeleteIcon />
                     </IconButton>
                   </>

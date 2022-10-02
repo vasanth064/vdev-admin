@@ -6,9 +6,33 @@ import {
   doc,
   getDocs,
   query,
+  arrayRemove,
+  arrayUnion,
   updateDoc,
 } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
+
+export const updateArrayItem = async (table, uid, arrayName, arrayItem) => {
+  const dataRef = doc(db, table, uid);
+  try {
+    await updateDoc(dataRef, {
+      [arrayName]: arrayUnion(arrayItem),
+    });
+  } catch (err) {
+    return `Failed to Update Array and ${err}`;
+  }
+};
+
+export const deleteArrayItem = async (table, uid, arrayName, arrayItem) => {
+  const dataRef = doc(db, table, uid);
+  try {
+    await updateDoc(dataRef, {
+      [arrayName]: arrayRemove(arrayItem),
+    });
+  } catch (err) {
+    return `Failed to Delete Array Item and ${err}`;
+  }
+};
 
 export const getFileURL = async (file, folder) => {
   if (!file) return;

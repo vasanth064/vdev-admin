@@ -16,19 +16,22 @@ import {
 import { Container } from '@mui/system';
 import { Form, Formik } from 'formik';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useEffect, useState } from 'react';
-import { getData } from '../Helpers/FirestoreHelper';
-const SocialLinks = () => {
-  const [sData, setSData] = useState(null);
+import { useState } from 'react';
+import { getFileURL, updateData } from '../Helpers/FirestoreHelper';
 
-  useEffect(() => {
-    const data = async () => {
-      let res = await getData('vdev');
-      res = res[0].socialLinks;
-      setSData(res);
-    };
-    data();
-  }, []);
+const SocialLinks = ({ vData, handleGetData }) => {
+  const tableName = 'vdev';
+  const uid = vData && vData[0].uid;
+  const [sData, setSData] = useState(vData && vData[0].socialLinks);
+
+  const handleSocialDelete = (index) => {
+    const data = sData.filter((item, i) => i != index);
+    setSData(data);
+    updateData('vdev', uid, {
+      socialLinks: data,
+    });
+    handleGetData();
+  };
   return (
     sData && (
       <div>
@@ -36,59 +39,96 @@ const SocialLinks = () => {
           <Typography mb={3} mt={2.5} variant='h5'>
             Social Links
           </Typography>
-          <Formik>
-            <Form>
-              <TextField
-                sx={{ mt: 3 }}
-                required
-                id='outlined-required'
-                label='Platform Name'
-                fullWidth
-              />
-              <TextField
-                sx={{ mt: 3 }}
-                required
-                id='outlined-required'
-                label='Account Name'
-                fullWidth
-              />
-              <TextField
-                sx={{ mt: 3 }}
-                required
-                id='outlined-required'
-                label='Account Link'
-                fullWidth
-              />
-              <Card sx={{ mt: 3 }}>
-                <CardMedia
-                  component='img'
-                  alt='green iguana'
-                  sx={{ width: '30vw', margin: 'auto' }}
+          <Formik
+            initialValues={{
+              platformName: '',
+              accountName: '',
+              accountLink: '',
+              platformIconAlt: '',
+              platformIcon: null,
+            }}
+            onSubmit={async (values) => {
+              const url = await getFileURL(values.platformIcon, tableName);
+              values.platformIcon = url;
+              const post = [...sData, values];
+              updateData(tableName, uid, {
+                socialLinks: post,
+              });
+              setSData([...sData, post]);
+              handleGetData();
+              document.querySelector('#socialLinks').reset();
+            }}>
+            {({ isSubmitting, handleChange, values, setFieldValue }) => (
+              <Form id='socialLinks'>
+                <TextField
+                  sx={{ mt: 3 }}
+                  required
+                  id='outlined-required'
+                  label='Platform Name'
+                  fullWidth
+                  name='platformName'
+                  onChange={handleChange}
+                  value={values.platformName}
                 />
-              </Card>
-              <TextField
-                sx={{ mt: 3 }}
-                required
-                id='outlined-required'
-                label='Platform Icon'
-                fullWidth
-              />
-              <Box sx={{ mt: 5 }}>
-                <Button variant='contained' component='label' id='upload'>
-                  Upload
-                  <input hidden accept='image/*' type='file' />
-                </Button>
-                <label style={{ marginLeft: '1rem' }}>filename.png</label>
-              </Box>
+                <TextField
+                  sx={{ mt: 3 }}
+                  id='outlined-required'
+                  label='Account Name'
+                  fullWidth
+                  name='accountName'
+                  onChange={handleChange}
+                  value={values.accountName}
+                />
+                <TextField
+                  sx={{ mt: 3 }}
+                  required
+                  id='outlined-required'
+                  label='Account Link'
+                  fullWidth
+                  name='accountLink'
+                  onChange={handleChange}
+                  value={values.accountLink}
+                />
 
-              <Button
-                type='submit'
-                variant='contained'
-                fullWidth
-                style={{ marginTop: '3rem' }}>
-                Submit
-              </Button>
-            </Form>
+                <TextField
+                  sx={{ mt: 3 }}
+                  required
+                  id='outlined-required'
+                  label='Platform Icon Alt'
+                  fullWidth
+                  name='platformIconAlt'
+                  onChange={handleChange}
+                  value={values.platformIconAlt}
+                />
+
+                <Box sx={{ mt: 5 }}>
+                  <Button variant='contained' component='label' id='upload'>
+                    Upload
+                    <input
+                      hidden
+                      name='platformIcon'
+                      accept='image/*'
+                      type='file'
+                      onChange={(e) => {
+                        setFieldValue('platformIcon', e.currentTarget.files[0]);
+                      }}
+                    />
+                  </Button>
+                  <label style={{ marginLeft: '1rem' }}>
+                    {values.platformIcon && values.platformIcon.name}
+                  </label>
+                </Box>
+
+                <Button
+                  disabled={isSubmitting}
+                  type='submit'
+                  variant='contained'
+                  fullWidth
+                  style={{ marginTop: '3rem' }}>
+                  Submit
+                </Button>
+              </Form>
+            )}
           </Formik>
         </Container>
         <Container sx={{ marginBottom: '3rem' }}>
@@ -107,7 +147,10 @@ const SocialLinks = () => {
                       <Button href={item.link} target='_blank'>
                         Open
                       </Button>
-                      <IconButton edge='end' aria-label='delete'>
+                      <IconButton
+                        edge='end'
+                        aria-label='delete'
+                        onClick={() => handleSocialDelete(index)}>
                         <DeleteIcon />
                       </IconButton>
                     </>

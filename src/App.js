@@ -8,10 +8,24 @@ import { ThemeProvider } from '@mui/material/styles';
 import vdevAdminTheme from './Theme';
 import GoogleAuthenticationProvider from './Contexts/GoogleAuthContext';
 import { ScopedCssBaseline } from '@mui/material';
+import { useEffect, useState, cloneElement } from 'react';
+import { getData } from './Helpers/FirestoreHelper';
 
 function App() {
   const location = useLocation();
+  const [getDataa, setGetData] = useState(true);
+  const [vData, setVData] = useState(null);
 
+  useEffect(() => {
+    const data = async () => {
+      let res = await getData('vdev');
+      setVData(res);
+    };
+    data();
+  }, [getDataa]);
+  function handleGetData() {
+    setGetData(!getDataa);
+  }
   return (
     <GoogleAuthenticationProvider>
       <ScopedCssBaseline enableColorScheme>
@@ -23,7 +37,7 @@ function App() {
           ) : null}
           <Routes>
             {projectRoutes.map((item, index) =>
-              item.private ? (
+              vData && item.private ? (
                 <Route
                   key={index}
                   path={item.path}
@@ -32,7 +46,9 @@ function App() {
                       <Paper
                         square
                         sx={{ minHeight: '100vh', paddingBottom: '5vh' }}>
-                        <Box sx={{ pt: 5 }}>{item.element}</Box>
+                        <Box sx={{ pt: 5 }}>
+                          {cloneElement(item.element, { vData, handleGetData })}
+                        </Box>
                       </Paper>
                     </PrivateRoute>
                   }
