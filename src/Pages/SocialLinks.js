@@ -2,8 +2,6 @@ import {
   Avatar,
   Box,
   Button,
-  Card,
-  CardMedia,
   Divider,
   IconButton,
   List,
@@ -25,7 +23,7 @@ const SocialLinks = ({ vData, handleGetData }) => {
   const [sData, setSData] = useState(vData && vData[0].socialLinks);
 
   const handleSocialDelete = (index) => {
-    const data = sData.filter((item, i) => i != index);
+    const data = sData.filter((item, i) => i !== index);
     setSData(data);
     updateData('vdev', uid, {
       socialLinks: data,

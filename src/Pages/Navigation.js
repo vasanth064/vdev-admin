@@ -4,14 +4,13 @@ import {
   List,
   ListItem,
   ListItemText,
-  Switch,
   TextField,
   Typography,
 } from '@mui/material';
 import { Container } from '@mui/system';
 import { Form, Formik } from 'formik';
 import DeleteIcon from '@mui/icons-material/Delete';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { updateData } from '../Helpers/FirestoreHelper';
 
 const Navigation = ({ vData, handleGetData }) => {
@@ -19,7 +18,7 @@ const Navigation = ({ vData, handleGetData }) => {
   const uid = vData && vData[0].uid;
 
   const handleNavDelete = async (index) => {
-    const data = nData.filter((item, i) => i != index);
+    const data = nData.filter((item, i) => i !== index);
     setNData(data);
     updateData('vdev', uid, {
       navigation: data,

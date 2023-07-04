@@ -1,10 +1,7 @@
 import { Typography } from '@mui/material';
 import { Navigate } from 'react-router-dom';
 import About from './Pages/About';
-import Contact from './Pages/Contact';
-import Home from './Pages/Home';
 import Login from './Pages/Login';
-import Navigation from './Pages/Navigation';
 import Projects from './Pages/Projects';
 import SocialLinks from './Pages/SocialLinks';
 
@@ -12,7 +9,7 @@ const projectRoutes = [
   {
     path: '/',
     private: true,
-    element: <Home />,
+    element: <Projects />,
   },
   {
     path: '/home',
@@ -27,23 +24,23 @@ const projectRoutes = [
   {
     path: '/projects',
     private: true,
-    element: <Projects />,
+    element: <Navigate to='/' replace />,
   },
-  {
-    path: '/about',
-    private: true,
-    element: <About />,
-  },
-  {
-    path: '/contact',
-    private: true,
-    element: <Contact />,
-  },
-  {
-    path: '/navigation',
-    private: true,
-    element: <Navigation />,
-  },
+  // {
+  //   path: '/about',
+  //   private: true,
+  //   element: <About />,
+  // },
+  // {
+  //   path: '/contact',
+  //   private: true,
+  //   element: <Contact />,
+  // },
+  // {
+  //   path: '/navigation',
+  //   private: true,
+  //   element: <Navigation />,
+  // },
   {
     path: '/social',
     private: true,
