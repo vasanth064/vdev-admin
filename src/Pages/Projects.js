@@ -128,6 +128,7 @@ const Projects = () => {
           <Formik
             initialValues={{
               projectName: '',
+              gitLink: '',
               projectLink: '',
               projectCategory: '',
               projectBanner: null,
@@ -140,6 +141,7 @@ const Projects = () => {
                 ...values,
                 projectStack,
               };
+              console.log(data);
               await addData('projects', data);
               getProjects();
               document.querySelector('#project').reset();
@@ -194,6 +196,14 @@ const Projects = () => {
                     ))}
                   </Stack>
                 )}
+                <TextField
+                  sx={{ mt: 3 }}
+                  required
+                  id='gitLink'
+                  label='Git Link'
+                  fullWidth
+                  onChange={handleChange}
+                />
                 <TextField
                   sx={{ mt: 3 }}
                   required
